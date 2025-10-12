@@ -142,5 +142,7 @@ namespace GymManagementBLL.Services.Classes
                 return false;
             }
         }
+
+        // finally
     }
 }
