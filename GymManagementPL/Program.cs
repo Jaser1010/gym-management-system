@@ -1,8 +1,11 @@
+using GymManagementBLL;
+using GymManagementBLL.Services.Interfaces;
 using GymManagementDAL.Data.Contexts;
 using GymManagementDAL.Data.DataSeed;
 using GymManagementDAL.Repositories.Classes;
 using GymManagementDAL.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
+using GymManagementBLL.Services.Classes;
 namespace GymManagementPL
 {
     public class Program
@@ -22,7 +25,10 @@ namespace GymManagementPL
             //builder.Services.AddScoped<IPlanRepository, PlanRepository>();
             //builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
             builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
-
+            builder.Services.AddScoped<ISessionRepository, SessionRepository>();
+            builder.Services.AddAutoMapper(x => x.AddProfile(new MappingProfiles()));
+            builder.Services.AddScoped<IAnalyticsService, AnalyticsService>();
+             
 
             var app = builder.Build();
 
