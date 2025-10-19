@@ -1,4 +1,5 @@
-﻿using GymManagementBLL.Services.Interfaces;
+﻿using AutoMapper;
+using GymManagementBLL.Services.Interfaces;
 using GymManagementBLL.ViewModels.MemberViewModels;
 using GymManagementDAL.Entities;
 using GymManagementDAL.Repositories.Classes;
@@ -11,174 +12,138 @@ using System.Threading.Tasks;
 
 namespace GymManagementBLL.Services.Classes
 {
-    internal class MemberService : IMemberService
+    public class MemberService : IMemberService
     {
-        private readonly IUnitOfWork unitOfWork;
+        private readonly IUnitOfWork UnitOfWork;
+        private readonly IMapper mapper;
 
-        public MemberService(IUnitOfWork UnitOfWork)
+        public MemberService(IUnitOfWork UnitOfWork, IMapper mapper)
         {
-            unitOfWork = UnitOfWork;
+            this.UnitOfWork = UnitOfWork;
+            this.mapper = mapper;
         }
 
-        public bool CreateMember(CreateMemberViewModel createMember)
+        public bool CreateMember(CreateMemberViewModel CreatedMember)
         {
             try
             {
-                var emailExists = unitOfWork.GetRepository<Member>().GetAll(m => m.Email == createMember.email).Any();
-                var PhoneExists = unitOfWork.GetRepository<Member>().GetAll(m => m.Phone == createMember.phone).Any();
-                if (PhoneExists || emailExists) return false;
-                var member = new Member()
-                {
-                    Name = createMember.name,
-                    Email = createMember.email,
-                    Phone = createMember.phone,
-                    DateOfBirth = createMember.DateOfBirth,
-                    Gender = createMember.Gender,
-                    Address = new Address
-                    {
-                        BuildingNumber = createMember.BuildingNumber,
-                        Street = createMember.Street,
-                        City = createMember.City
-                    },
-                    HealthRecord = new HealthRecord
-                    {
-                        Weight = createMember.HealthRecordViewModel.Weight,
-                        Height = createMember.HealthRecordViewModel.Height,
-                        BloodType = createMember.HealthRecordViewModel.BloodType,
-                        Note = createMember.HealthRecordViewModel.note
-                    }
-                };
-                unitOfWork.GetRepository<Member>().Add(member);
-                return unitOfWork.SaveChanges() > 0;
+                var Repo = UnitOfWork.GetRepository<Member>();
+
+                if (IsEmailExists(CreatedMember.email))
+                    return false;
+                if (IsPhoneExists(CreatedMember.phone))
+                    return false;
+                var Member = mapper.Map<Member>(CreatedMember);
+                Repo.Add(Member);
+                return UnitOfWork.SaveChanges() > 0;
             }
-            catch (Exception)
+            catch
             {
                 return false;
             }
-        }
 
+
+        }
 
         public IEnumerable<MemberViewModel> GetAllMembers()
         {
-            var members = unitOfWork.GetRepository<Member>().GetAll();
-            if (members is null || !members.Any()) return Enumerable.Empty<MemberViewModel>();
-            var memberViewModels = members.Select(m => new MemberViewModel
-            {
-                Id = m.Id,
-                Photo = m.Photo,
-                Name = m.Name,
-                Email = m.Email,
-                Phone = m.Phone,
-                Gender = m.Gender.ToString()
-
-            }).ToList();
-            return memberViewModels;
+            var Members = UnitOfWork.GetRepository<Member>().GetAll();
+            if (!Members.Any()) return [];
+            return mapper.Map<IEnumerable<MemberViewModel>>(Members);
         }
-
         public MemberViewModel? GetMemberDetails(int MemberId)
         {
-            var member = unitOfWork.GetRepository<Member>().GetById(MemberId);
+            var member = UnitOfWork.GetRepository<Member>().GetById(MemberId);
+
             if (member is null) return null;
-            var ViewModel = new MemberViewModel
-            {
-                Photo = member.Photo,
-                Name = member.Name,
-                Email = member.Email,
-                Phone = member.Phone,
-                Gender = member.Gender.ToString(),
-                DateOfBirth = member.DateOfBirth.ToShortDateString(),
-                Address = $"{member.Address.BuildingNumber}- {member.Address.Street}- {member.Address.City}"
 
-            };
+            var viewModel = mapper.Map<MemberViewModel>(member);
 
-            var ActiveMemberShip = unitOfWork.GetRepository<MemberShip>().GetAll(m => m.MemberId == MemberId && m.Status == "Active").FirstOrDefault();
-            if (ActiveMemberShip is not null)
+            var activeMemberShip = UnitOfWork.GetRepository<MemberShip>()
+                .GetAll(MP => MP.MemberId == MemberId && MP.Status == "Active").FirstOrDefault();
+
+            if (activeMemberShip is not null)
             {
-                var plan = unitOfWork.GetRepository<Plan>().GetById(ActiveMemberShip.PlanId);
-                ViewModel.PlanName = plan?.Name;
-                ViewModel.MembershipStartDate = ActiveMemberShip.CreatedAt.ToShortDateString();
-                ViewModel.MembershipEndDate = ActiveMemberShip.EndDate.ToShortDateString();
+                var activePlan = UnitOfWork.GetRepository<Plan>().GetById(activeMemberShip.PlanId);
+
+                viewModel.PlanName = activePlan?.Name;
+                viewModel.MembershipStartDate = activeMemberShip.CreatedAt.ToShortDateString();
+                viewModel.MembershipEndDate = activeMemberShip.EndDate.ToShortDateString();
             }
-            return ViewModel;
-        }
 
+            return viewModel;
+        }
         public HealthRecordViewModel? GetMemberHealthRecordDetails(int MemberId)
         {
-            var MemberHealthRecord = unitOfWork.GetRepository<HealthRecord>().GetById(MemberId);
+            var MemberHealthRecord = UnitOfWork.GetRepository<HealthRecord>().GetById(MemberId);
             if (MemberHealthRecord is null) return null;
-            return new HealthRecordViewModel
-            {
-                Weight = MemberHealthRecord.Weight,
-                Height = MemberHealthRecord.Height,
-                BloodType = MemberHealthRecord.BloodType,
-                note = MemberHealthRecord.Note
-            };
-        }
 
+            return mapper.Map<HealthRecordViewModel>(MemberHealthRecord);
+        }
         public MemberToUpdateViewModel? GetMemberToUpdate(int MemberId)
         {
-            var member = unitOfWork.GetRepository<Member>().GetById(MemberId);
+            var member = UnitOfWork.GetRepository<Member>().GetById(MemberId);
             if (member is null) return null;
-            return new MemberToUpdateViewModel
-            {
-                Name = member.Name,
-                Photo = member.Photo,
-                email = member.Email,
-                phone = member.Phone,
-                BuildingNumber = member.Address.BuildingNumber,
-                Street = member.Address.Street,
-                City = member.Address.City
-            };
+            return mapper.Map<MemberToUpdateViewModel>(member);
         }
-
         public bool RemoveMember(int MemberId)
         {
-            var member = unitOfWork.GetRepository<Member>().GetById(MemberId);
+            var Repo = UnitOfWork.GetRepository<Member>();
+            var member = Repo.GetById(MemberId);
             if (member is null) return false;
-            var HasActiveMemberSessions = unitOfWork.GetRepository<MemberSession>()
+            var HasActiveMemberSessions = UnitOfWork.GetRepository<MemberSession>()
                 .GetAll(ms => ms.MemberId == MemberId && ms.Session.StartDate > DateTime.Now).Any();
             if (HasActiveMemberSessions) return false;
-            var memberShips = unitOfWork.GetRepository<MemberShip>().GetAll(m => m.MemberId == MemberId);
+            var memberShips = UnitOfWork.GetRepository<MemberShip>().GetAll(m => m.MemberId == MemberId);
             try
             {
                 if (memberShips.Any())
                 {
                     foreach (var memberShip in memberShips)
                     {
-                        unitOfWork.GetRepository<MemberShip>().Delete(memberShip);
+                        UnitOfWork.GetRepository<MemberShip>().Delete(memberShip);
                     }
                 }
-                unitOfWork.GetRepository<Member>().Delete(member);
-                return unitOfWork.SaveChanges() > 0;
+                UnitOfWork.GetRepository<Member>().Delete(member);
+                return UnitOfWork.SaveChanges() > 0;
             }
             catch (Exception)
             {
                 return false;
             }
         }
-
         public bool UpdateMember(int MemberId, MemberToUpdateViewModel UpdatedMember)
         {
-            try
-            {
-                var EmailExists = unitOfWork.GetRepository<Member>().GetAll(m => m.Email == UpdatedMember.email).Any();
-                var phoneExists = unitOfWork.GetRepository<Member>().GetAll(m => m.Phone == UpdatedMember.phone).Any();
-                if (EmailExists || phoneExists) return false;
-                var member = unitOfWork.GetRepository<Member>().GetById(MemberId);
-                if (member is null) return false;
-                member.Email = UpdatedMember.email;
-                member.Phone = UpdatedMember.phone;
-                member.Address.BuildingNumber = UpdatedMember.BuildingNumber;
-                member.Address.Street = UpdatedMember.Street;
-                member.Address.City = UpdatedMember.City;
-                member.UpdatedAt = DateTime.Now;
-                unitOfWork.GetRepository<Member>().Update(member);
-                return unitOfWork.SaveChanges() > 0;
-            }
-            catch (Exception)
-            {
-                return false;
-            }
+            var emailExist = UnitOfWork.GetRepository<Member>().GetAll(
+                m => m.Email == UpdatedMember.email && m.Id != MemberId);
+
+            var PhoneExist = UnitOfWork.GetRepository<Member>().GetAll(
+                m => m.Phone == UpdatedMember.phone && m.Id != MemberId);
+
+            if (emailExist.Any() || PhoneExist.Any()) return false;
+
+            var Repo = UnitOfWork.GetRepository<Member>();
+            var Member = Repo.GetById(MemberId);
+            if (Member is null) return false;
+            mapper.Map(UpdatedMember, Member);
+
+            Repo.Update(Member);
+            return UnitOfWork.SaveChanges() > 0;
         }
+
+        #region Helper Methods
+        private bool IsEmailExists(string email)
+        {
+            var existing = UnitOfWork.GetRepository<Member>().GetAll(
+                m => m.Email == email);
+            return existing.Any();
+        }
+        private bool IsPhoneExists(string phone)
+        {
+            var existing = UnitOfWork.GetRepository<Member>().GetAll(
+                m => m.Phone == phone);
+            return existing.Any();
+        }
+        #endregion
     }
 }
