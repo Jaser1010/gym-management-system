@@ -41,7 +41,6 @@ namespace GymManagementBLL.Services.Classes
                 return false;
             }
         }
-
         public IEnumerable<SessionViewModel> GetAllSessions()
         {
             var Session = unitOfWork.SessionRepository.GetAllSessionsWithTrainerAndCategory();
@@ -56,7 +55,6 @@ namespace GymManagementBLL.Services.Classes
             return MappedSessions;
 
         }
-
         public SessionViewModel? GetSessionById(int sessionId)
         {
             var Session = unitOfWork.SessionRepository.GetSessionWithTrainerAndCategory(sessionId);
@@ -67,8 +65,6 @@ namespace GymManagementBLL.Services.Classes
             MappedSession.AvailableSlots = MappedSession.Capacity - bookedSlots;
             return MappedSession;
         }
-
-
         public UpdateSessionViewModel? GetSessionToUpdate(int SessionId)
         {
             var Session = unitOfWork.GetRepository<Session>().GetById(SessionId);
@@ -76,7 +72,6 @@ namespace GymManagementBLL.Services.Classes
             var MappedSession = mapper.Map<UpdateSessionViewModel>(Session!);
             return MappedSession;
         }
-
         public bool UpdateSession(UpdateSessionViewModel UpdatedSession, int sessionId)
         {
             try
@@ -99,7 +94,6 @@ namespace GymManagementBLL.Services.Classes
 
 
         }
-
         public bool RemoveSession(int sessionId)
         {
             try
@@ -115,7 +109,6 @@ namespace GymManagementBLL.Services.Classes
                 return false;
             }
         }
-
 
 
         #region Private Methods

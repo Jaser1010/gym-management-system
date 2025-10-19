@@ -1,7 +1,9 @@
-﻿using GymManagementBLL.Services.Interfaces;
+﻿using AutoMapper;
+using GymManagementBLL.Services.Interfaces;
 using GymManagementBLL.ViewModels.MemberViewModels;
 using GymManagementBLL.ViewModels.TrainerViewModels;
 using GymManagementDAL.Entities;
+using GymManagementDAL.Repositories.Classes;
 using GymManagementDAL.Repositories.Interfaces;
 using System;
 using System.Collections.Generic;
@@ -11,37 +13,27 @@ using System.Threading.Tasks;
 
 namespace GymManagementBLL.Services.Classes
 {
-    internal class TrainerService : ITrainerService
+    public class TrainerService : ITrainerService
     {
         private readonly IUnitOfWork unitOfWork;
+        private readonly IMapper mapper;
 
-        public TrainerService(IUnitOfWork unitOfWork)
+        public TrainerService(IUnitOfWork unitOfWork, IMapper mapper)
         {
             this.unitOfWork = unitOfWork;
+            this.mapper = mapper;
         }
         public bool CreateTrainer(CreateTrainerViewModel createTrainer)
         {
             try
             {
-                var emailExists = unitOfWork.GetRepository<Trainer>().GetAll(m => m.Email == createTrainer.email).Any();
-                var PhoneExists = unitOfWork.GetRepository<Trainer>().GetAll(m => m.Phone == createTrainer.phone).Any();
-                if (PhoneExists || emailExists) return false;
-                var Trainer = new Trainer()
-                {
-                    Name = createTrainer.name,
-                    Email = createTrainer.email,
-                    Phone = createTrainer.phone,
-                    DateOfBirth = createTrainer.DateOfBirth,
-                    Gender = createTrainer.Gender,
-                    Address = new Address
-                    {
-                        BuildingNumber = createTrainer.BuildingNumber,
-                        Street = createTrainer.Street,
-                        City = createTrainer.City
-                    },
-                    Specialties = createTrainer.Specialties
-                };
-                unitOfWork.GetRepository<Trainer>().Add(Trainer);
+                var Repo = unitOfWork.GetRepository<Trainer>();
+
+                if (IsEmailExists(createTrainer.email) || IsPhoneExists(createTrainer.phone)) return false;
+                var Trainer = mapper.Map<CreateTrainerViewModel, Trainer>(createTrainer);
+
+
+                Repo.Add(Trainer);
                 return unitOfWork.SaveChanges() > 0;
             }
             catch (Exception)
@@ -49,100 +41,87 @@ namespace GymManagementBLL.Services.Classes
                 return false;
             }
         }
-
         public IEnumerable<TrainerViewModel> GetAllTrainers()
         {
             var Trainers = unitOfWork.GetRepository<Trainer>().GetAll();
-            if (Trainers is null || !Trainers.Any()) return Enumerable.Empty<TrainerViewModel>();
-            var memberViewModels = Trainers.Select(m => new TrainerViewModel
-            {
-                Id = m.Id,
-                Name = m.Name,
-                Email = m.Email,
-                Phone = m.Phone,
-                Gender = m.Gender.ToString(),
-                Specialties = m.Specialties.ToString()
+            if (Trainers is null || !Trainers.Any()) return [];
 
-            }).ToList();
-            return memberViewModels;
+            var mappedTrainers = mapper.Map<IEnumerable<Trainer>, IEnumerable<TrainerViewModel>>(Trainers);
+            return mappedTrainers;
         }
-
-        public TrainerViewModel? GetTrainerDetails(int TrainerId)
+        public TrainerViewModel? GetTrainerDetails(int trainerId)
         {
-            var Trainer = unitOfWork.GetRepository<Trainer>().GetById(TrainerId);
+            var Trainer = unitOfWork.GetRepository<Trainer>().GetById(trainerId);
             if (Trainer is null) return null;
-            var ViewModel = new TrainerViewModel
-            {
-                Name = Trainer.Name,
-                Email = Trainer.Email,
-                Phone = Trainer.Phone,
-                Gender = Trainer.Gender.ToString(),
-                DateOfBirth = Trainer.DateOfBirth.ToShortDateString(),
-                Address = $"{Trainer.Address.BuildingNumber}- {Trainer.Address.Street}- {Trainer.Address.City}",
-                Specialties = Trainer.Specialties.ToString()
 
-            };
-            return ViewModel;
+            var mappedTrainer = mapper.Map<Trainer, TrainerViewModel>(Trainer);
+            return mappedTrainer;
         }
-
-        public TrainerToUpdateViewModel? GetTrainerToUpdate(int TrainerId)
+        public TrainerToUpdateViewModel? GetTrainerToUpdate(int trainerId)
         {
-            var Trainer = unitOfWork.GetRepository<Trainer>().GetById(TrainerId);
+            var Trainer = unitOfWork.GetRepository<Trainer>().GetById(trainerId);
             if (Trainer is null) return null;
-            return new TrainerToUpdateViewModel
-            {
-                Name = Trainer.Name,
-                email = Trainer.Email,
-                phone = Trainer.Phone,
-                BuildingNumber = Trainer.Address.BuildingNumber,
-                Street = Trainer.Address.Street,
-                City = Trainer.Address.City,
-                Specialties = Trainer.Specialties
-            };
-        }
 
-        public bool RemoveTrainer(int TrainerId)
+            var mappedTrainer = mapper.Map<Trainer, TrainerToUpdateViewModel>(Trainer);
+            return mappedTrainer;
+
+
+
+        }
+        public bool RemoveTrainer(int trainerId)
         {
-            var Trainer = unitOfWork.GetRepository<Trainer>().GetById(TrainerId);
-            if (Trainer is null) return false;
-            var HasActiveTrainerSessions = unitOfWork.GetRepository<Session>()
-                .GetAll(ms => ms.Id == TrainerId && ms.StartDate > DateTime.Now).Any();
-            if (HasActiveTrainerSessions) return false;
-            try
-            { 
-                unitOfWork.GetRepository<Trainer>().Delete(Trainer);
-                return unitOfWork.SaveChanges() > 0;
-            }
-            catch (Exception)
-            {
-                return false;
-            }
-        }
+            var Repo = unitOfWork.GetRepository<Trainer>();
+            var TrainerToRemove = Repo.GetById(trainerId);
+            if (TrainerToRemove is null || HasActiveSessions(trainerId)) return false;
+            Repo.Delete(TrainerToRemove);
+            return unitOfWork.SaveChanges() > 0;
 
+        }
         public bool UpdateTrainer(int TrainerId, TrainerToUpdateViewModel UpdatedTrainer)
         {
-            try
-            {
-                var EmailExists = unitOfWork.GetRepository<Trainer>().GetAll(m => m.Email == UpdatedTrainer.email).Any();
-                var phoneExists = unitOfWork.GetRepository<Trainer>().GetAll(m => m.Phone == UpdatedTrainer.phone).Any();
-                if (EmailExists || phoneExists) return false;
-                var Trainer = unitOfWork.GetRepository<Trainer>().GetById(TrainerId);
-                if (Trainer is null) return false;
-                Trainer.Email = UpdatedTrainer.email;
-                Trainer.Phone = UpdatedTrainer.phone;
-                Trainer.Address.BuildingNumber = UpdatedTrainer.BuildingNumber;
-                Trainer.Address.Street = UpdatedTrainer.Street;
-                Trainer.Address.City = UpdatedTrainer.City;
-                Trainer.UpdatedAt = DateTime.Now;
-                unitOfWork.GetRepository<Trainer>().Update(Trainer);
-                return unitOfWork.SaveChanges() > 0;
-            }
-            catch (Exception)
-            {
-                return false;
-            }
+            var emailExist = unitOfWork.GetRepository<Member>().GetAll(
+                m => m.Email == UpdatedTrainer.email && m.Id != TrainerId);
+
+            var PhoneExist = unitOfWork.GetRepository<Member>().GetAll(
+                m => m.Phone == UpdatedTrainer.phone && m.Id != TrainerId);
+
+            if (emailExist.Any() || PhoneExist.Any()) return false;
+
+            var Repo = unitOfWork.GetRepository<Trainer>();
+            var TrainerToUpdate = Repo.GetById(TrainerId);
+
+            if (TrainerToUpdate is null) return false;
+
+            mapper.Map(UpdatedTrainer, TrainerToUpdate);
+            TrainerToUpdate.UpdatedAt = DateTime.Now;
+
+            return unitOfWork.SaveChanges() > 0;
         }
 
         // finally
+
+
+        #region Helper Methods
+        private bool IsEmailExists(string email)
+        {
+            var existing = unitOfWork.GetRepository<Member>().GetAll(
+                m => m.Email == email).Any();
+            return existing;
+        }
+        private bool IsPhoneExists(string phone)
+        {
+            var existing = unitOfWork.GetRepository<Member>().GetAll(
+                m => m.Phone == phone).Any();
+            return existing;
+        }
+        private bool HasActiveSessions(int Id)
+        {
+            var activeSessions = unitOfWork.GetRepository<Session>().GetAll(
+               s => s.TrainerId == Id && s.StartDate > DateTime.Now).Any();
+            return activeSessions;
+        }
+
+        
+        #endregion
     }
 }
