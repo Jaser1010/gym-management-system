@@ -36,10 +36,11 @@ namespace GymManagementPL
             builder.Services.AddScoped<IPlanService, PlanService>();
             builder.Services.AddScoped<ISessionService, SessionService>();
             builder.Services.AddScoped<IMembershipService, MembershipService>();
+			builder.Services.AddScoped<IBookingService, BookingService>();
 
 
 
-            var app = builder.Build();
+			var app = builder.Build();
 
 
             #region Migrate Database - Data Seeding

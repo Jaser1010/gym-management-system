@@ -33,7 +33,8 @@ namespace GymManagementDAL.Data.Contexts
         public DbSet<Plan> Plans { get; set; } = null!;
         public DbSet<MemberShip> memberShips { get; set; } = null!;
         public DbSet<MemberSession> memberSessions { get; set; } = null!;
-        
-        #endregion
-    }
+		public DbSet<MemberSession> MemberSessions { get; set; }
+
+		#endregion
+	}
 }

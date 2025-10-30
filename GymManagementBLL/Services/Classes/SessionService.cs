@@ -2,6 +2,7 @@
 using GymManagementBLL.Services.Interfaces;
 using GymManagementBLL.ViewModels.SessionViewModels;
 using GymManagementDAL.Entities;
+using GymManagementDAL.Repositories.Classes;
 using GymManagementDAL.Repositories.Interfaces;
 using GymManagementSystemBLL.ViewModels.SessionViewModels;
 using System;
@@ -111,8 +112,21 @@ namespace GymManagementBLL.Services.Classes
         }
 
 
-        #region Private Methods
-        private bool IsTrainerExist(int TrainerId)
+
+		public IEnumerable<TrainerSelectViewModel> GetTrainersForDropDown()
+		{
+			var trainers = unitOfWork.GetRepository<Trainer>().GetAll();
+			return mapper.Map<IEnumerable<TrainerSelectViewModel>>(trainers);
+		}
+		public IEnumerable<CategorySelectViewModel> GetCategoriesForDropDown()
+		{
+
+			var categories = unitOfWork.GetRepository<Category>().GetAll();
+			return mapper.Map<IEnumerable<CategorySelectViewModel>>(categories);
+		}
+
+		#region Private Methods
+		private bool IsTrainerExist(int TrainerId)
         {
              return unitOfWork.GetRepository<Trainer>().GetById(TrainerId) is not null;
 
