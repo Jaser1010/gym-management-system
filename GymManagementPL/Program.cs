@@ -6,6 +6,8 @@ using GymManagementDAL.Repositories.Classes;
 using GymManagementDAL.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using GymManagementBLL.Services.Classes;
+using GymManagementBLL.Services.AttachmentService;
+using GymManagementBLL.Services.Attachmentservice;
 namespace GymManagementPL
 {
     public class Program
@@ -36,10 +38,13 @@ namespace GymManagementPL
             builder.Services.AddScoped<IPlanService, PlanService>();
             builder.Services.AddScoped<ISessionService, SessionService>();
             builder.Services.AddScoped<IMembershipService, MembershipService>();
+			builder.Services.AddScoped<IBookingRepository, BookingRepository>();
+			builder.Services.AddScoped<IBookingService, BookingService>();
+            builder.Services.AddScoped<IAttachmentService, AttachmentService>();
 
 
 
-            var app = builder.Build();
+			var app = builder.Build();
 
 
             #region Migrate Database - Data Seeding

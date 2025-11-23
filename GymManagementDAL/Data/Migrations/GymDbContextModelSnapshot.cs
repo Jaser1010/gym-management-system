@@ -105,6 +105,7 @@ namespace GymManagementDAL.Data.Migrations
                         .HasColumnType("varchar");
 
                     b.Property<string>("Photo")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime?>("UpdatedAt")
@@ -122,7 +123,7 @@ namespace GymManagementDAL.Data.Migrations
                         {
                             t.HasCheckConstraint("ymUserValidEmailCheck", "Email LIKE '_%@_%._%'");
 
-                            t.HasCheckConstraint("ymUserValidPhoneCheck", "Phone Like '01%' and Phone Not Like '%[^0:9]%'");
+                            t.HasCheckConstraint("ymUserValidPhoneCheck", "Phone Like '01%' and Phone Not Like '%[^0-9]%'");
                         });
                 });
 
@@ -150,7 +151,7 @@ namespace GymManagementDAL.Data.Migrations
 
                     b.HasIndex("MemberId");
 
-                    b.ToTable("memberSessions");
+                    b.ToTable("MemberSession");
                 });
 
             modelBuilder.Entity("GymManagementDAL.Entities.MemberShip", b =>
@@ -323,7 +324,7 @@ namespace GymManagementDAL.Data.Migrations
                             t.HasCheckConstraint("ymUserValidEmailCheck", "Email LIKE '_%@_%._%'")
                                 .HasName("ymUserValidEmailCheck1");
 
-                            t.HasCheckConstraint("ymUserValidPhoneCheck", "Phone Like '01%' and Phone Not Like '%[^0:9]%'")
+                            t.HasCheckConstraint("ymUserValidPhoneCheck", "Phone Like '01%' and Phone Not Like '%[^0-9]%'")
                                 .HasName("ymUserValidPhoneCheck1");
                         });
                 });

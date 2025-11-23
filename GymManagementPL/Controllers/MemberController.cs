@@ -12,12 +12,20 @@ namespace GymManagementPL.Controllers
 		{
 			_memberService = memberService;
 		}
+
+
+
 		#region Get All Members
 		public IActionResult Index()
 		{
-			var Members = _memberService.GetAllMembers();
-			return View(Members);
+			var members = _memberService.GetAllMembers();
+			return View(members);
 		}
+		//public IActionResult Index()
+		//{
+		//	var Members = _memberService.GetAllMembers();
+		//	return View(Members);
+		//}
 		#endregion
 
 		#region Create Member 

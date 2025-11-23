@@ -104,13 +104,13 @@ namespace GymManagementBLL.Services.Classes
         #region Helper Methods
         private bool IsEmailExists(string email)
         {
-            var existing = unitOfWork.GetRepository<Member>().GetAll(
+            var existing = unitOfWork.GetRepository<Trainer>().GetAll(
                 m => m.Email == email).Any();
             return existing;
         }
         private bool IsPhoneExists(string phone)
         {
-            var existing = unitOfWork.GetRepository<Member>().GetAll(
+            var existing = unitOfWork.GetRepository<Trainer>().GetAll(
                 m => m.Phone == phone).Any();
             return existing;
         }
