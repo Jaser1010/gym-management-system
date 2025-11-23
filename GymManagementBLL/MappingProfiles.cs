@@ -69,6 +69,9 @@ namespace GymManagementBLL
 						.ForMember(dest => dest.AvailableSlots, opt => opt.Ignore()); // Will Be Calculated After Map
 			CreateMap<UpdateSessionViewModel, Session>().ReverseMap();
 
+			CreateMap<Category, CategorySelectViewModel>();
+			CreateMap<Trainer, TrainerSelectViewModel>();
+
 			#endregion
 		}
 		private void MapMember()
@@ -140,7 +143,9 @@ namespace GymManagementBLL
 					 .ForMember(dist => dist.PlanName, Option => Option.MapFrom(Src => Src.Plan.Name))
 										  .ForMember(dist => dist.StartDate, Option => Option.MapFrom(X => X.CreatedAt));
 
-			CreateMap<CreateMemberShipViewModel, MemberShip>();
+			CreateMap<MemberShip, CreateMemberShipViewModel>()
+				.ForMember(dest => dest.PlanId, option => option.MapFrom(src => src.PlanId))
+				.ForMember(dest => dest.MemberId, option => option.MapFrom(src => src.MemberId));
 			CreateMap<Member, MemberSelectListViewModel>();
 			CreateMap<Plan, PlanSelectListViewModel>();
 

@@ -24,12 +24,12 @@ namespace GymManagementBLL.Services.Classes
             this.mapper = mapper;
         }
 
-        public bool CreateSession(SessionViewModel CreatedSession)
+        public bool CreateSession(CreateSessionViewModel CreatedSession)
         {
             try
             {
-                if (!IsTrainerExist(CreatedSession.Id)) return false;
-                if (!IsCategoryExist(CreatedSession.Id)) return false;
+                if (!IsTrainerExist(CreatedSession.TrainerId)) return false;
+                if (!IsCategoryExist(CreatedSession.CategoryId)) return false;
                 if (!IsValidDateRange(CreatedSession.StartDate, CreatedSession.EndDate)) return false;
                 if (CreatedSession.Capacity > 25 || CreatedSession.Capacity < 0) return false;
                 var MappedSession = mapper.Map<Session>(CreatedSession);

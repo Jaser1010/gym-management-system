@@ -32,7 +32,7 @@ namespace GymManagementPL.Controllers
 		}
 
 		[HttpPost]
-		public IActionResult Create(SessionViewModel model)
+		public IActionResult Create(CreateSessionViewModel model)
 		{
 			if (!ModelState.IsValid)
 			{
