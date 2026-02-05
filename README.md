@@ -29,5 +29,5 @@ A back-end–driven web application built with **ASP.NET MVC** using a **Layered
 
 ## Author
 **Jaser Kasim**  
-- LinkedIn: (your link)
+- LinkedIn: https://www.linkedin.com/in/jaser-kasim-j1k2/
 - GitHub: https://github.com/Jaser1010
