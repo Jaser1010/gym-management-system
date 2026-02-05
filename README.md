@@ -1,56 +1,33 @@
-# C44-G03-MVC03
+# Gym Management System (ASP.NET MVC)
 
-## Description
-This project implements the Model-View-Controller pattern using ASP.NET.
+A back-end–driven web application built with **ASP.NET MVC** using a **Layered Architecture**:
+- **PL** (Presentation Layer)
+- **BLL** (Business Logic Layer)
+- **DAL** (Data Access Layer)
 
-## Topic
-ASP.NET MVC
+## What this project demonstrates
+- Clean separation of concerns (PL / BLL / DAL)
+- CRUD workflows with validation rules
+- SQL database integration
+- Maintainable structure and scalable code organization
 
-## Technologies
-- **Primary Language**: C#
-- **Framework**: ASP.NET / .NET (if applicable)
-
-## Getting Started
-
-### Prerequisites
-- Visual Studio 2019 or later / VS Code
-- .NET SDK (appropriate version)
-- Any additional dependencies listed in the project file
-
-### Installation
-1. Clone the repository:
-   ``bash
-   git clone https://github.com/Jaser1010/C44-G03-MVC03.git
-   ``n
-2. Navigate to the project directory:
-   ``bash
-   cd C44-G03-MVC03
-   ``n
-3. Restore dependencies:
-   ``bash
-   dotnet restore
-   ``n
-### Running the Project
-``bash
-dotnet run
-``n
-Or open the solution/project file in Visual Studio and press F5.
+## Tech Stack
+- C#
+- ASP.NET MVC
+- SQL Database
+- Layered Architecture (PL / BLL / DAL)
 
 ## Project Structure
-See the source code files for implementation details.
+- `GymManagementPL` — UI + Controllers + Views
+- `GymManagementBLL` — Business rules + services
+- `GymManagementDAL` — Database access + repositories
 
-## Learning Objectives
-This project was created as part of a programming course to practice and demonstrate:
-- Core programming concepts
-- Best practices and design patterns
-- Problem-solving skills
-
-## License
-This is a learning project.
+## How to Run
+1. Clone the repo  
+2. Open the solution file in Visual Studio  
+3. Restore packages and run the project
 
 ## Author
-- **Jaser1010**
-- GitHub: [@Jaser1010](https://github.com/Jaser1010)
-
----
-*This README was automatically generated. Please update with specific project details as needed.*
+**Jaser Kasim**  
+- LinkedIn: (your link)
+- GitHub: https://github.com/Jaser1010
