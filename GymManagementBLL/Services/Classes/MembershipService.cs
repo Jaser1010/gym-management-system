@@ -22,10 +22,15 @@ namespace GymManagementBLL.Services.Classes
 			{
 				if (!IsMemberExists(CreatedMemberShip.MemberId) || !IsPlanExists(CreatedMemberShip.PlanId)
 					|| HasActiveMemberShip(CreatedMemberShip.MemberId)) return false;
+
 				var MemberShipToCreate = mapper.Map<MemberShip>(CreatedMemberShip);
+
 				var Plan = unitOfWork.GetRepository<Plan>().GetById(CreatedMemberShip.PlanId);
+
 				MemberShipToCreate.EndDate = DateTime.Now.AddDays(Plan!.DurationDays);
+
 				unitOfWork.MembershipRepository.Add(MemberShipToCreate);
+
 				return unitOfWork.SaveChanges() > 0;
 			}
 			catch
