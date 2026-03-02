@@ -163,87 +163,60 @@ The project follows a **classic 3-Tier Layered Architecture**:
 ## 📁 Solution Structure
 
 ```
-GymManagementSystem.sln
+GymManagementSystem/
 │
-├── 🌐 GymManagementPL/                        # Presentation Layer
-│   ├── Program.cs                             # DI container, DB migration, seeding
-│   ├── Controllers/
-│   │   ├── HomeController.cs                  # Landing page + analytics dashboard
-│   │   ├── MemberController.cs                # Member CRUD + health records
-│   │   ├── TrainerController.cs               # Trainer CRUD with specialties
-│   │   ├── PlanController.cs                  # Plan CRUD with pricing
-│   │   ├── SessionController.cs               # Session CRUD + scheduling
-│   │   ├── MembershipController.cs            # Membership assignments
-│   │   └── BookingController.cs               # Session booking management
-│   ├── Views/
-│   │   ├── Home/        (Index, Privacy)
-│   │   ├── Member/      (Index, Create, MemberEdit, MemberDetails, Delete, HealthRecordDetails, HealthRecordEdit)
-│   │   ├── Trainer/     (Index, Create, Edit, Details, Delete)
-│   │   ├── Plan/        (Index, Edit, Details)
-│   │   ├── Session/     (Index, Create, Edit, Details, Delete)
-│   │   ├── Membership/  (Index, Create, MemberMemberships)
-│   │   ├── Booking/     (Index, Create, GetMembersForOngoingSessions, GetMembersForUpcomingSession)
-│   │   └── Shared/      (_Layout, _AlertBoxScript, Error, _ValidationScriptsPartial)
-│   ├── wwwroot/
-│   │   ├── css/         (site.css, style.css — 12K+ custom styles)
-│   │   ├── js/          (site.js)
-│   │   ├── images/      (logos, icons, member photos)
-│   │   ├── Files/       (categories.json, plans.json — seed data)
-│   │   └── lib/         (Bootstrap 5, jQuery, jQuery Validation)
-│   └── appsettings.*.json
-│
-├── ⚙️ GymManagementBLL/                       # Business Logic Layer
-│   ├── MappingProfiles.cs                     # Entity ↔ ViewModel mappings
-│   ├── Services/
-│   │   ├── Classes/
-│   │   │   ├── MemberService.cs               # Member CRUD + photos + health
-│   │   │   ├── TrainerService.cs              # Trainer CRUD + photo upload
-│   │   │   ├── PlanService.cs                 # Plan CRUD with validation
-│   │   │   ├── SessionService.cs              # Session lifecycle management
-│   │   │   ├── MembershipService.cs           # Member-plan assignments
-│   │   │   ├── BookingService.cs              # Session booking logic
-│   │   │   └── AnalyticsService.cs            # Dashboard aggregates
-│   │   ├── Interfaces/                        # Service contracts (7 interfaces)
-│   │   └── AttachmentService/                 # File upload/delete operations
-│   └── ViewModels/
-│       ├── MemberViewModels/     (Create, Update, View, HealthRecord)
-│       ├── TrainerViewModels/    (Create, Update, View)
-│       ├── PlanViewModels/       (View, Update)
-│       ├── SessionViewModels/    (Create, Update, View, SelectLists)
-│       ├── BookingViewModels/    (Create, MemberForSession)
-│       ├── MembershipViewModels/ (Create, View, SelectLists)
-│       └── AnalyticsViewModels/  (AnalyticsViewModel)
-│
-├── 🗃️ GymManagementDAL/                       # Data Access Layer
-│   ├── Entities/
-│   │   ├── BaseEntity.cs                      # Abstract base with Id + CreatedAt
-│   │   ├── Member.cs                          # Gym member entity
-│   │   ├── Trainer.cs                         # Trainer with specialty enum
-│   │   ├── Plan.cs                            # Subscription plan with pricing
-│   │   ├── Session.cs                         # Scheduled gym session
-│   │   ├── MemberShip.cs                      # Member-Plan relationship
-│   │   ├── MemberSession.cs                   # Member-Session booking (M:N)
-│   │   ├── Category.cs                        # Session category
-│   │   ├── HealthRecord.cs                    # Member health data
-│   │   ├── GymUser.cs                         # User profile
-│   │   └── Enums/ (Gender, Specialties)
+├── GymManagementDAL/                  # Data Access Layer
+│   ├── Entities/                      # Domain models
+│   │   ├── BaseEntity.cs
+│   │   ├── GymUser.cs
+│   │   ├── ApplicationUser.cs
+│   │   ├── Member.cs
+│   │   ├── Trainer.cs
+│   │   ├── Plan.cs
+│   │   ├── Session.cs
+│   │   ├── MemberShip.cs
+│   │   ├── MemberSession.cs
+│   │   ├── HealthRecord.cs
+│   │   ├── Category.cs
+│   │   └── Enums/
 │   ├── Data/
-│   │   ├── Contexts/GymDbContext.cs            # EF Core context + Fluent API
-│   │   ├── Configurations/                    # 9 entity configurations
-│   │   ├── DataSeed/GymDbContextSeeding.cs    # JSON-based seed data
-│   │   └── Migrations/                        # 6 migration snapshots
+│   │   ├── Contexts/                  # GymDbContext
+│   │   ├── Configurations/            # Fluent API entity configs
+│   │   ├── DataSeed/                  # GymDbContextSeeding, IdentityDbContextSeeding
+│   │   └── Migrations/
 │   └── Repositories/
-│       ├── Classes/
-│       │   ├── GenericRepository.cs           # Base CRUD repository
-│       │   ├── UnitOfWork.cs                  # Transaction coordinator
-│       │   ├── SessionRepository.cs           # Session-specific queries
-│       │   ├── BookingRepository.cs           # Booking-specific queries
-│       │   └── MembershipRepository.cs        # Membership-specific queries
-│       └── Interfaces/                        # Repository contracts (5 interfaces)
+│       ├── Interfaces/                # IGenericRepository, IUnitOfWork, ...
+│       └── Classes/                   # GenericRepository, UnitOfWork, ...
 │
-├── GymManagementSystem.sln
-├── .gitignore
-└── .gitattributes
+├── GymManagementBLL/                  # Business Logic Layer
+│   ├── Services/
+│   │   ├── Interfaces/                # IMemberService, ITrainerService, ...
+│   │   ├── Classes/                   # MemberService, TrainerService, ...
+│   │   └── AttachmentService/         # File upload handling
+│   ├── ViewModels/                    # Per-feature ViewModels (CRUD + Select)
+│   │   ├── MemberViewModels/
+│   │   ├── TrainerViewModels/
+│   │   ├── SessionViewModels/
+│   │   ├── PlanViewModels/
+│   │   ├── MembershipViewModels/
+│   │   ├── BookingViewModels/
+│   │   ├── AnalyticsViewModels/
+│   │   └── AccountViewModels/
+│   └── MappingProfiles.cs             # AutoMapper profiles for all entities
+│
+└── GymManagementPL/                   # Presentation Layer
+    ├── Controllers/
+    │   ├── AccountController.cs
+    │   ├── HomeController.cs
+    │   ├── MemberController.cs
+    │   ├── TrainerController.cs
+    │   ├── PlanController.cs
+    │   ├── SessionController.cs
+    │   ├── MembershipController.cs
+    │   └── BookingController.cs
+    ├── Views/                         # Razor views per controller
+    ├── Program.cs
+    └── appsettings.json
 ```
 
 ---
@@ -356,56 +329,14 @@ dotnet run --project GymManagementPL
 
 ## 🔬 Design Patterns
 
-<details>
-<summary><b>📦 Generic Repository + Unit of Work</b></summary>
-
-```csharp
-// Generic CRUD for any entity
-public interface IGenericRepository<T> where T : BaseEntity
-{
-    Task<IEnumerable<T>> GetAllAsync();
-    Task<T?> GetByIdAsync(int id);
-    void Add(T entity);
-    void Update(T entity);
-    void Delete(T entity);
-}
-
-// Coordinates multiple repositories + transactions
-public interface IUnitOfWork : IDisposable
-{
-    IGenericRepository<T> Repository<T>() where T : BaseEntity;
-    Task<int> CompleteAsync();
-}
-```
-
-Plus specialized repositories: `ISessionRepository`, `IBookingRepository`, `IMembershipRepository` for complex queries with includes and joins.
-
-</details>
-
-<details>
-<summary><b>🗺️ AutoMapper Profiles</b></summary>
-
-`MappingProfiles.cs` maps between DAL entities and BLL ViewModels:
-
-- `Member` ↔ `MemberViewModel`, `CreateMemberViewModel`, `MemberToUpdateViewModel`
-- `Trainer` ↔ `TrainerViewModel`, `CreateTrainerViewModel`, `TrainerToUpdateViewModel`
-- `Plan` ↔ `PlanViewModel`, `UpdatePlanViewModel`
-- `Session` ↔ `SessionViewModel`, `CreateSessionViewModel`, `UpdateSessionViewModel`
-- And many more...
-
-</details>
-
-<details>
-<summary><b>📁 Attachment Service</b></summary>
-
-Handles file upload and deletion for member and trainer profile photos:
-
-- Saves uploaded files to `wwwroot/images/members/` with GUID-based filenames
-- Supports delete of old files when updating photos
-- Injected via DI into `MemberService` and `TrainerService`
-
-</details>
-
+| Pattern             | Where used                                              |
+|---------------------|---------------------------------------------------------|
+| **Repository**      | `IGenericRepository<T>` + entity-specific repositories |
+| **Unit of Work**    | `IUnitOfWork` coordinates all repositories             |
+| **Service Layer**   | BLL services encapsulate all business logic            |
+| **AutoMapper**      | ViewModel ↔ Entity mapping in `MappingProfiles.cs`     |
+| **Data Seeding**    | `GymDbContextSeeding` + `IdentityDbContextSeeding`     |
+| **Dependency Injection** | All services/repos registered in `Program.cs`     |
 ---
 
 ## 🗺️ Roadmap
