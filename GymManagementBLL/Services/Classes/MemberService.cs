@@ -38,18 +38,18 @@ namespace GymManagementBLL.Services.Classes
                     return false;
 
 
-                var PhotName = attachmentService.Upload("members",CreatedMember.PhotoFile);
-                if(string.IsNullOrEmpty(PhotName))
+                var PhotoName = attachmentService.Upload("members",CreatedMember.PhotoFile);
+                if(string.IsNullOrEmpty(PhotoName))
                     return false;
                 
 
 				var Member = mapper.Map<Member>(CreatedMember);
-                Member.Photo = PhotName;
+                Member.Photo = PhotoName;
 				Repo.Add(Member);
                 var IsCreated = UnitOfWork.SaveChanges() > 0;
                 if (!IsCreated)
                 {
-                    attachmentService.Delete( PhotName, "members");
+                    attachmentService.Delete( PhotoName, "members");
                     return false;
 				}
                 else
