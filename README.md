@@ -412,22 +412,23 @@ Handles file upload and deletion for member and trainer profile photos:
 
 #### ✅ Completed
 
-- [x] Member CRUD with profile photos and health records
-- [x] Trainer CRUD with specialties and photos
-- [x] Session scheduling with trainer/category assignment
-- [x] Booking system with capacity tracking
-- [x] Membership plans with pricing and duration
-- [x] Analytics dashboard
-- [x] Generic Repository + Unit of Work
-- [x] AutoMapper integration
-- [x] File attachment service
-- [x] JSON-based data seeding
-- [x] Auto DB migration
+- [x] **Member CRUD** with profile photos and health records
+- [x] **Trainer CRUD** with specialties and photos
+- [x] **Session scheduling** with trainer/category assignment
+- [x] **Booking system** with capacity tracking
+- [x] **Membership plans** with pricing and duration
+- [x] **Analytics** dashboard
+- [x] **Generic Repository** + **Unit of Work**
+- [x] **AutoMapper** integration
+- [x] **File attachment service**
+- [x] JSON-based **data seeding**
+- [x] **Auto DB migration**
 - [x] Bootstrap 5 responsive UI (12K+ lines of custom CSS)
+- [x] **Authentication & Authorization** — ASP.NET Identity with role-based access (Admin, Trainer, Member)
+
 
 #### 🔜 Coming Soon
 
-- [ ] 🔐 **Authentication & Authorization** — ASP.NET Identity with role-based access (Admin, Trainer, Member)
 - [ ] 💰 **Billing & Invoicing** — Payment tracking and invoice generation
 - [ ] 📧 **Email Notifications** — Membership renewal and session reminders
 - [ ] 📱 **Responsive Improvements** — Mobile-first redesign
